@@ -1,0 +1,35 @@
+name: PR15 research validation
+on:
+  push:
+    branches: [pr15-research-validation-20261023]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: verifier
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: Anchen-AI4Math/average-sensitivity-lean
+          ref: cb8c10538e613329be16f9a949d0d75a4c7c67f0
+          path: proof
+          persist-credentials: false
+      - name: Offline checks and verifier regression suite
+        working-directory: verifier
+        run: |
+          python3 auto-research/lean-statements/2026-10-23-Anchen0823-average-sensitivity/verify.py
+          python3 -m unittest discover -s tests -v
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: proof
+          auto-config: false
+          build: false
+          use-mathlib-cache: true
+          use-github-cache: false
+      - name: Full positive baseline and allowed axioms
+        run: python3 verifier/auto-research/lean-statements/2026-10-23-Anchen0823-average-sensitivity/verify.py --lean-project "$GITHUB_WORKSPACE/proof"
