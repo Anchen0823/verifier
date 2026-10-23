@@ -87,6 +87,23 @@ Additional pitfalls and choices:
 
 ## Reproduce
 
+### Recorded validation
+
+[GitHub Actions run 39939498877](https://github.com/Anchen0823/verifier/actions/runs/39939498877)
+passed on Ubuntu on 2026-10-23 at validation-branch commit
+`6529c825f52609fbf9fa4dd7c0303510b6602992`. It passed all 77 verifier tests,
+the offline package checks, the complete pinned public `Race.bound` proof,
+and `baseline_eight` with its exact allowed-axiom guard. The public proof
+emits one pre-existing tactic-style warning; no proof errors occurred.
+`evidence/validation.json` records the tested source hashes and
+`evidence/checks.txt` retains the relevant log excerpt. Only documentation
+and evidence were added after that run; tested code and source pins are unchanged.
+The temporary workflow is confined to a separate fork branch and is not in
+the proposed upstream diff. Local mutation checks also rejected a changed
+README and a changed target source hash.
+
+### Offline command
+
 From the verifier repository root, with Python 3.10+ (no network or packages):
 
 ```sh
@@ -112,6 +129,15 @@ prepare the public proof checkout at the pinned commit, with its committed
 
 ```sh
 python3 auto-research/lean-statements/2026-10-23-Anchen0823-average-sensitivity/verify.py --lean-project /absolute/path/to/average-sensitivity-lean
+```
+
+For an explicit fresh-runner setup, install elan, then (from the verifier root):
+
+```sh
+git clone https://github.com/Anchen-AI4Math/average-sensitivity-lean ../average-sensitivity-lean
+git -C ../average-sensitivity-lean checkout cb8c10538e613329be16f9a949d0d75a4c7c67f0
+(cd ../average-sensitivity-lean && lake exe cache get)
+python3 auto-research/lean-statements/2026-10-23-Anchen0823-average-sensitivity/verify.py --lean-project ../average-sensitivity-lean
 ```
 
 The script rejects another proof commit and refuses Lean execution outside
